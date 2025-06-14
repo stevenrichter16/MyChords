@@ -6,12 +6,17 @@ MyChords is an educational iOS chord player app built with SwiftUI and the Obser
 
 ## Core Features
 
-- **Dual-tab interface**: Chords tab and Progressions tab
+- **Triple-tab interface**: Chords tab, Scales tab, and Progressions tab
 - **7 Major chords**: C, D, E, F, G, A, B with synthesized playback
+- **7 Major scales**: A, B, C, D, E, F, G for scale exploration
 - **Chord progressions**: 10 popular progressions with sequential playback
 - **Piano visualizations**: Toggle between text and piano key display
 - **Music theory education**: Scale relationships, chord construction, degree analysis
-- **Interactive theory sheets**: Detailed information for each chord
+- **Interactive theory sheets**: Detailed information for each chord including:
+  - Scale degree visualization
+  - Relative minor chord with playback
+  - Dominant and Dominant 7 chords with playback
+  - Educational explanations of chord relationships
 - **Object-oriented design** with models, services, and view models
 - **Observation framework** for state management
 - **Modular, extensible architecture** ready for additional features
@@ -24,27 +29,34 @@ MyChords/
 │   ├── Note.swift              # Note with frequency calculation
 │   ├── Chord.swift             # Chord with factory methods
 │   ├── ScaleNote.swift         # Scale degree information
-│   └── ChordProgression.swift  # Progression sequences
+│   ├── ChordProgression.swift  # Progression sequences
+│   └── Scale.swift             # Scale model with chord generation
 ├── Views/
-│   ├── ContentView.swift       # Tab-based navigation
+│   ├── ContentView.swift       # Tab-based navigation (3 tabs)
 │   ├── ChordButtonView.swift   # Original chord button
 │   ├── ChordButtonWithPianoView.swift # Enhanced with info
 │   ├── ChordPadView.swift      # Grid of chords
+│   ├── ScalesView.swift        # Grid of scale buttons
+│   ├── ScaleButtonView.swift   # Scale button with info icon
 │   ├── ProgressionsListView.swift # Progression list
 │   ├── ChordProgressionView.swift # Single progression UI
 │   ├── Piano/
 │   │   ├── PianoKeyView.swift  # Individual piano key
 │   │   └── PianoKeyboardView.swift # Full keyboard
 │   └── Theory/
-│       ├── ChordTheorySheet.swift # Theory modal
+│       ├── ChordTheorySheet.swift # Theory modal with chord relationships
+│       ├── ScaleTheorySheet.swift # Scale theory with chord variations
+│       ├── RelativeMinorView.swift # Relative minor display
+│       ├── DominantChordView.swift # Dominant chord display
 │       ├── ScaleVisualizationView.swift # Scale degrees
-│       └── ScalePianoView.swift # Scale on piano
+│       ├── ScalePianoView.swift # Scale on piano with dual views
+│       └── ScaleCompatiblePianoView.swift # Piano for sharp/flat notes
 ├── ViewModels/
 │   └── ChordPlayerViewModel.swift # State management
 ├── Services/
-│   └── MusicTheoryService.swift # Theory calculations
+│   └── MusicTheoryService.swift # Theory calculations + chord relationships
 ├── Audio/
-│   └── AudioEngine.swift       # Sound synthesis
+│   └── AudioEngine.swift       # Sound synthesis with proper state management
 └── MyChordsApp.swift          # App entry point
 ```
 
@@ -691,3 +703,82 @@ var isPlayingProgression: Bool {
 5. **Performance Matters**: Audio glitches break the experience immediately
 
 This architectural foundation supports the app's evolution from a simple chord player to a comprehensive music theory education platform.
+
+## Recent Development Session (December 2024)
+
+### Major Additions
+
+#### 1. **Scales Tab Implementation**
+- Added a new Scales tab to the app's navigation
+- Created Scale model with extensible design for future scale types (minor, modes, etc.)
+- Implemented scale buttons for A, B, C, D, E, F, G major scales
+- Built ScaleTheorySheet to show chord variations within each scale
+
+**Status**: The ScaleTheorySheet UI has rendering issues with the piano keyboard display. Taking a break from this implementation to focus on enhancing ChordTheorySheet where the UI logic is proven to work correctly.
+
+#### 2. **Enhanced ChordTheorySheet**
+- **Relative Minor Integration**: Added RelativeMinorView showing the vi chord with:
+  - Interactive playback
+  - Piano visualization
+  - Educational explanation of the relationship
+- **Dominant Chord Integration**: Added DominantChordView featuring:
+  - Toggle between V and V7 chords
+  - Color-coded play buttons (orange for dominant)
+  - Detailed music theory explanations
+  - Piano visualization for each variation
+
+#### 3. **MusicTheoryService Enhancements**
+- Added `getRelativeMinor()` method to find the 6th degree minor chord
+- Added `getDominant()` and `getDominant7()` methods for dominant relationships
+- Maintained clean separation of music theory logic from UI
+
+### Technical Improvements
+
+#### 1. **Audio Engine State Management Fix**
+- Fixed critical bug where `isPlaying` state wasn't properly synchronized
+- Implemented proper completion tracking for audio buffers
+- Ensured play buttons re-enable after chord playback completes
+- Solution: Track completed buffers and only set `isPlaying = false` when all finish
+
+#### 2. **ScalePianoView Enhancement**
+- Modified to display two separate piano keyboards:
+  - Top: Shows only chord notes
+  - Bottom: Shows all scale notes in one color
+- Increased key size for better visibility
+- Improved labeling and visual hierarchy
+
+#### 3. **Sharp/Flat Note Support**
+- Created ScaleCompatiblePianoView to handle enharmonic equivalents
+- Implemented noteToChromatic conversion for proper key mapping
+- Attempted to support proper key signatures (C, G, D, A, E, B, F#, F, Bb, Eb, Ab, Db, Gb)
+
+### Architecture Decisions
+
+#### 1. **Shared ViewModel Pattern**
+- ChordTheorySheet creates single ChordPlayerViewModel instance
+- Passes it to child views (RelativeMinorView, DominantChordView)
+- Prevents state management issues from multiple ViewModel instances
+
+#### 2. **Component Reusability**
+- Used existing PianoKeyboardView for new chord displays
+- Maintained consistent visual language across features
+- Leveraged proven UI components rather than creating new ones
+
+### Known Issues & Future Direction
+
+#### 1. **ScaleTheorySheet Piano Display**
+- Piano keyboards only show 1-2 keys instead of full octave
+- Root cause: Complex interaction between Scale model's note generation and piano rendering
+- Decision: Focus on enhancing ChordTheorySheet where infrastructure works correctly
+
+#### 2. **Future Development Strategy**
+- All new chord relationship features will be added to ChordTheorySheet
+- This leverages working UI components and proven chord generation
+- Scale tab remains functional but ScaleTheorySheet needs redesign
+
+### Lessons from This Session
+
+1. **Reuse Working Components**: The ChordTheorySheet's approach works well - build on it
+2. **State Management Matters**: Proper Observable pattern usage prevents subtle bugs
+3. **Incremental Enhancement**: Adding features to working views is more reliable than creating new complex views
+4. **Sharp/Flat Complexity**: Proper enharmonic handling requires careful design throughout the stack

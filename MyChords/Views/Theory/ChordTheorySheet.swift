@@ -23,6 +23,14 @@ struct ChordTheorySheet: View {
                     }
                     .padding(.top)
                     
+                    // Chord inversions
+                    ChordInversionView(
+                        baseChord: chord,
+                        viewModel: viewModel,
+                        chordColor: .blue
+                    )
+                    .padding(.horizontal)
+                    
                     // Scale piano visualization
                     ScalePianoView(
                         scaleNotes: theoryService.getScaleWithChordHighlights(chord: chord),
@@ -69,21 +77,6 @@ struct ChordTheorySheet: View {
                         viewModel: viewModel
                     )
                     .padding(.horizontal)
-                    
-                    // Piano visualization for reference
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Piano Keys")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        PianoKeyboardView(
-                            highlightedNotes: Set(chord.notes.map { $0.name }),
-                            octave: 4
-                        )
-                        .scaleEffect(0.9)
-                        .frame(height: 80)
-                        .padding(.horizontal)
-                    }
                     
                     Spacer(minLength: 20)
                 }

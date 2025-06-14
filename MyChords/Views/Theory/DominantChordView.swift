@@ -6,21 +6,39 @@ struct DominantChordView: View {
     let viewModel: ChordPlayerViewModel
     
     @State private var showDominant7 = false
+    @State private var selectedInversion = 0
     
-    private var dominantChord: Chord {
+    private var baseDominantChord: Chord {
         theoryService.getDominant(forMajorKey: majorChord.symbol)
     }
     
-    private var dominant7Chord: Chord {
+    private var baseDominant7Chord: Chord {
         theoryService.getDominant7(forMajorKey: majorChord.symbol)
     }
     
+    private var baseChord: Chord {
+        showDominant7 ? baseDominant7Chord : baseDominantChord
+    }
+    
     private var currentChord: Chord {
-        showDominant7 ? dominant7Chord : dominantChord
+        if selectedInversion == 0 {
+            return baseChord
+        } else {
+            return baseChord.inverted(inversion: selectedInversion)
+        }
     }
     
     private var dominantNoteSet: Set<String> {
         Set(currentChord.notes.map { $0.name })
+    }
+    
+    private var currentNotePositions: Set<String> {
+        Set(currentChord.notes.map { "\($0.name)\($0.octave)" })
+    }
+    
+    private var inversionOptions: Int {
+        // Dominant 7 has 4 inversions, regular dominant has 3
+        showDominant7 ? 4 : 3
     }
     
     var body: some View {
@@ -37,11 +55,17 @@ struct DominantChordView: View {
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.horizontal)
+                .onChange(of: showDominant7) { oldValue, newValue in
+                    // Reset inversion when switching chord types if it's out of bounds
+                    if selectedInversion >= inversionOptions {
+                        selectedInversion = 0
+                    }
+                }
                 
                 // Chord info with play button
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(currentChord.name)
+                        Text(baseChord.name)
                             .font(.title3)
                             .fontWeight(.medium)
                         
@@ -64,10 +88,29 @@ struct DominantChordView: View {
                 }
                 .padding(.horizontal)
                 
+                // Inversion picker
+                HStack {
+                    Text("Inversion:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    
+                    Picker("Inversion", selection: $selectedInversion) {
+                        Text("Root").tag(0)
+                        Text("1st").tag(1)
+                        Text("2nd").tag(2)
+                        if showDominant7 {
+                            Text("3rd").tag(3)
+                        }
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                }
+                .padding(.horizontal)
+                
                 // Piano visualization
                 PianoKeyboardView(
                     highlightedNotes: dominantNoteSet,
-                    octave: 4
+                    octave: 4,
+                    highlightedNotePositions: currentNotePositions
                 )
                 .scaleEffect(0.85)
                 .frame(height: 70)

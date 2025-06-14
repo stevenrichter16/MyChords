@@ -5,12 +5,26 @@ struct RelativeMinorView: View {
     let theoryService: MusicTheoryService
     let viewModel: ChordPlayerViewModel
     
-    private var relativeMinorChord: Chord {
+    @State private var selectedInversion = 0
+    
+    private var baseRelativeMinorChord: Chord {
         theoryService.getRelativeMinor(forMajorKey: majorChord.symbol)
     }
     
+    private var currentChord: Chord {
+        if selectedInversion == 0 {
+            return baseRelativeMinorChord
+        } else {
+            return baseRelativeMinorChord.inverted(inversion: selectedInversion)
+        }
+    }
+    
     private var relativeMinorNoteSet: Set<String> {
-        Set(relativeMinorChord.notes.map { $0.name })
+        Set(currentChord.notes.map { $0.name })
+    }
+    
+    private var currentNotePositions: Set<String> {
+        Set(currentChord.notes.map { "\($0.name)\($0.octave)" })
     }
     
     var body: some View {
@@ -20,10 +34,10 @@ struct RelativeMinorView: View {
                 .font(.headline)
             
             VStack(spacing: 16) {
-                // Chord info with play button
+                // Chord info with play button and inversion picker
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(relativeMinorChord.name)
+                        Text(baseRelativeMinorChord.name)
                             .font(.title3)
                             .fontWeight(.medium)
                         
@@ -34,13 +48,22 @@ struct RelativeMinorView: View {
                     
                     Spacer()
                     
+                    // Inversion picker
+                    Picker("Inversion", selection: $selectedInversion) {
+                        Text("Root").tag(0)
+                        Text("1st").tag(1)
+                        Text("2nd").tag(2)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .frame(width: 150)
+                    
                     // Play button
                     Button(action: {
-                        viewModel.playChord(relativeMinorChord)
+                        viewModel.playChord(currentChord)
                     }) {
-                        Image(systemName: viewModel.currentlyPlayingChordId == relativeMinorChord.name ? "speaker.wave.3.fill" : "play.circle.fill")
+                        Image(systemName: viewModel.currentlyPlayingChordId == currentChord.name ? "speaker.wave.3.fill" : "play.circle.fill")
                             .font(.title2)
-                            .foregroundColor(viewModel.isPlaying ? .purple : .yellow)
+                            .foregroundColor(.purple)
                     }
                     .disabled(viewModel.isPlaying)
                 }
@@ -48,13 +71,14 @@ struct RelativeMinorView: View {
                 // Piano visualization
                 PianoKeyboardView(
                     highlightedNotes: relativeMinorNoteSet,
-                    octave: 4
+                    octave: 4,
+                    highlightedNotePositions: currentNotePositions
                 )
                 .scaleEffect(0.85)
                 .frame(height: 70)
                 
                 // Notes display
-                Text(relativeMinorChord.notes.map { $0.name }.joined(separator: " - "))
+                Text(currentChord.notes.map { $0.name }.joined(separator: " - "))
                     .font(.caption)
                     .foregroundColor(.secondary)
                 

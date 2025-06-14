@@ -14,9 +14,6 @@ struct ScalePianoView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("\(chord.symbol) Major Scale - Piano View")
-                .font(.headline)
-            
             VStack(alignment: .leading, spacing: 12) {
                 // Chord notes piano
                 VStack(alignment: .leading, spacing: 6) {
@@ -24,7 +21,7 @@ struct ScalePianoView: View {
                         Circle()
                             .fill(Color.blue)
                             .frame(width: 12, height: 12)
-                        Text("Chord notes (\(chord.symbol) Major)")
+                        Text("(Chord notes)")
                             .font(.subheadline)
                     }
                     
@@ -43,7 +40,7 @@ struct ScalePianoView: View {
                         Circle()
                             .fill(Color.green.opacity(0.7))
                             .frame(width: 12, height: 12)
-                        Text("All scale notes (\(chord.symbol) Major Scale)")
+                        Text("(\(chord.symbol) Major Scale)")
                             .font(.subheadline)
                     }
                     
