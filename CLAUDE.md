@@ -1,39 +1,51 @@
-# CLAUDE.md - Simple Chord Player iOS App
+# CLAUDE.md - MyChords iOS App
 
 ## Project Overview
 
-This is a simple iOS chord player app built with SwiftUI, SwiftData, and the Observation framework. The app allows users to play four basic major chords (C, D, F, G) by tapping buttons. Each chord plays for 3 seconds using synthesized audio.
+MyChords is an educational iOS chord player app built with SwiftUI and the Observation framework. The app helps users learn music theory through interactive chord playback, visual piano representations, and detailed scale relationships. It started as a simple 4-chord player and has evolved into a comprehensive music theory learning tool.
 
-## Core Requirements
+## Core Features
 
-- **Single tab interface** with 4 chord buttons
-- **Object-oriented design** with Note and Chord classes
-- **3-second chord playback** when buttons are tapped
-- **SwiftData ready** (no persistence yet, but structured for future use)
-- **Observation framework** for state management (Combine only if absolutely necessary)
-- **Extensible architecture** for future features
+- **Dual-tab interface**: Chords tab and Progressions tab
+- **7 Major chords**: C, D, E, F, G, A, B with synthesized playback
+- **Chord progressions**: 10 popular progressions with sequential playback
+- **Piano visualizations**: Toggle between text and piano key display
+- **Music theory education**: Scale relationships, chord construction, degree analysis
+- **Interactive theory sheets**: Detailed information for each chord
+- **Object-oriented design** with models, services, and view models
+- **Observation framework** for state management
+- **Modular, extensible architecture** ready for additional features
 
-## Project Structure
+## Current Project Structure
 
 ```
-SimpleChordPlayer/
-├── App/
-│   └── SimpleChordPlayerApp.swift
+MyChords/
 ├── Models/
-│   ├── Note.swift
-│   ├── Chord.swift
-│   └── MusicTheory.swift
+│   ├── Note.swift              # Note with frequency calculation
+│   ├── Chord.swift             # Chord with factory methods
+│   ├── ScaleNote.swift         # Scale degree information
+│   └── ChordProgression.swift  # Progression sequences
 ├── Views/
-│   ├── ContentView.swift
-│   ├── ChordButtonView.swift
-│   └── ChordPadView.swift
+│   ├── ContentView.swift       # Tab-based navigation
+│   ├── ChordButtonView.swift   # Original chord button
+│   ├── ChordButtonWithPianoView.swift # Enhanced with info
+│   ├── ChordPadView.swift      # Grid of chords
+│   ├── ProgressionsListView.swift # Progression list
+│   ├── ChordProgressionView.swift # Single progression UI
+│   ├── Piano/
+│   │   ├── PianoKeyView.swift  # Individual piano key
+│   │   └── PianoKeyboardView.swift # Full keyboard
+│   └── Theory/
+│       ├── ChordTheorySheet.swift # Theory modal
+│       ├── ScaleVisualizationView.swift # Scale degrees
+│       └── ScalePianoView.swift # Scale on piano
 ├── ViewModels/
-│   └── ChordPlayerViewModel.swift
+│   └── ChordPlayerViewModel.swift # State management
+├── Services/
+│   └── MusicTheoryService.swift # Theory calculations
 ├── Audio/
-│   ├── AudioEngine.swift
-│   └── ChordSynthesizer.swift
-└── Utilities/
-    └── AudioConstants.swift
+│   └── AudioEngine.swift       # Sound synthesis
+└── MyChordsApp.swift          # App entry point
 ```
 
 ## Implementation Guidelines
@@ -404,6 +416,58 @@ The architecture supports these future additions:
 - **Settings**: Adjust volume, instrument sounds
 - **MIDI support**: Connect external keyboards
 
+### Planned Chord Relationships for ChordTheorySheet
+
+The following chord relationships should be displayed for each major chord to enhance music theory education:
+
+#### 1. **Diatonic Chords** (Built from the major scale)
+- **ii** - Supertonic minor (2nd degree)
+- **iii** - Mediant minor (3rd degree)
+- **IV** - Subdominant major (4th degree)
+- **V** - Dominant major (5th degree)
+- **vi** - Relative minor (6th degree) ✓ Already implemented
+- **vii°** - Leading tone diminished (7th degree)
+
+#### 2. **Essential Functional Chords**
+- **Subdominant (IV)** - Creates movement away from tonic
+- **Dominant (V)** - Creates tension that resolves to I
+- **Dominant 7th (V7)** - Stronger resolution with added 7th
+
+#### 3. **Modal Interchange Chords** (Borrowed from parallel minor)
+- **iv** - Minor subdominant (e.g., Fm in C major)
+- **bVI** - Flat six major (e.g., Ab in C major)
+- **bVII** - Flat seven major (e.g., Bb in C major)
+- **ii°** - Diminished two
+
+#### 4. **Secondary Dominants**
+- **V/V** - Dominant of the dominant (e.g., D major in C)
+- **V/IV** - Dominant of the subdominant
+- **V/vi** - Dominant of the relative minor
+
+#### 5. **Common Chord Extensions**
+- **maj7** - Major 7th (jazzy sound)
+- **7** - Dominant 7th (bluesy sound)
+- **sus2** - Suspended 2nd (ethereal sound)
+- **sus4** - Suspended 4th (tension/release)
+- **add9** - Added 9th (color tone)
+- **6** - Major 6th (vintage sound)
+
+#### 6. **Parallel and Chromatic Relationships**
+- **Parallel minor** - Same root, minor quality (C major → C minor)
+- **Chromatic mediant** - Major/minor thirds away (C → E, C → Ab, C → A, C → Eb)
+- **Neapolitan** - bII major (classical sound)
+
+### Implementation Priority
+
+For the best educational progression, implement in this order:
+1. **Relative minor (vi)** - ✓ Complete
+2. **Dominant (V) and Dominant 7th (V7)** - Essential for understanding resolution
+3. **Subdominant (IV)** - Completes the I-IV-V progression
+4. **Parallel minor** - Shows major/minor contrast
+5. **All diatonic chords (ii, iii, vii°)** - Complete scale harmonization
+6. **Modal interchange (iv, bVI, bVII)** - Introduces borrowed chords
+7. **Extensions (maj7, sus, add9)** - Advanced harmony
+
 ## Development Steps
 
 1. Create new Xcode project with SwiftUI and SwiftData
@@ -444,3 +508,186 @@ The architecture supports these future additions:
 - Use efficient buffer sizes
 
 This implementation provides a solid foundation that can be extended with more features while keeping the initial scope manageable and focused.
+
+## Architectural Patterns & Development Philosophy
+
+### Modular Component Design
+
+Throughout development, we've established key patterns for building reusable, extensible components:
+
+#### 1. **Separation of Concerns**
+- **Models** (`Note`, `Chord`, `ScaleNote`, `ChordProgression`): Pure data structures with minimal logic
+- **Services** (`MusicTheoryService`): Business logic and calculations separated from UI
+- **Views**: Focused on presentation, broken into small, reusable components
+- **ViewModels**: State management using Observation framework, bridging models and views
+
+#### 2. **Component Hierarchy**
+
+```
+ChordButtonView (original)
+    ↓
+ChordButtonWithPianoView (enhanced with piano viz)
+    ├── PianoKeyboardView (reusable piano component)
+    │   └── PianoKeyView (individual key)
+    └── ChordTheorySheet (modal for theory info)
+        ├── ScalePianoView (scale-specific piano)
+        │   └── ScalePianoKeyboardView (dynamic layout)
+        └── ScaleVisualizationView (degree analysis)
+```
+
+Each component is designed to be:
+- **Self-contained**: Can function independently
+- **Configurable**: Accepts parameters for different use cases
+- **Composable**: Can be combined to create complex features
+
+#### 3. **Progressive Enhancement Pattern**
+
+We followed a pattern of iterative enhancement:
+1. Start with basic functionality (4 chord buttons)
+2. Add features without breaking existing code
+3. Create enhanced versions rather than modifying originals
+4. Use composition to add capabilities
+
+Example: `ChordButtonView` → `ChordButtonWithPianoView` (added piano viz and info button)
+
+### Key Design Decisions
+
+#### 1. **Visual Components as Separate Views**
+- `PianoKeyboardView`: Generic piano that can highlight any set of notes
+- `ScalePianoView`: Specialized for showing scales with chord highlights
+- `ScaleVisualizationView`: Focuses on music theory relationships
+
+This separation allows:
+- Reuse in different contexts
+- Easy testing of individual components
+- Clear responsibility boundaries
+
+#### 2. **Service Layer for Business Logic**
+```swift
+MusicTheoryService.shared
+├── getMajorScale(root:)
+├── getScaleWithChordHighlights(chord:)
+└── getChordFunction(chord:, inKey:)
+```
+
+Benefits:
+- Centralized music theory calculations
+- Testable pure functions
+- Easy to extend with new theory concepts
+
+#### 3. **Dynamic UI Generation**
+Instead of hardcoding UI layouts, we generate them based on data:
+- Piano keys positioned dynamically based on root note
+- Chord buttons generated from chord array
+- Scale visualizations built from scale data
+
+### Development Best Practices Established
+
+#### 1. **Incremental Development**
+- Start with minimal viable feature
+- Test thoroughly before adding complexity
+- Each feature should work standalone
+- Use todo lists to track incremental progress
+
+#### 2. **User Feedback Integration**
+- Fixed audio buzzing by reducing amplitude and adding harmonics
+- Removed confusing connection lines in favor of clear pattern visualization
+- Adjusted piano visualization to start from tonic note
+- Added octave indication for educational clarity
+
+#### 3. **Educational Focus**
+Every feature enhancement considered educational value:
+- Piano visualization shows which keys to press
+- Scale visualization explains chord construction
+- Theory sheets provide multiple perspectives
+- Visual hierarchy guides learning (colors, sizing, labels)
+
+### Future-Proofing Strategies
+
+#### 1. **Extensible Models**
+```swift
+// Current: Major chords only
+Chord.createMajorChord(root: "C")
+
+// Future: Easy to add
+Chord.createMinorChord(root: "C")
+Chord.createSeventhChord(root: "C")
+Chord.createDiminishedChord(root: "C")
+```
+
+#### 2. **Pluggable Visualizations**
+The sheet-based architecture allows adding new theory views:
+- Chord inversions view
+- Circle of fifths integration
+- Staff notation display
+- Interval training games
+
+#### 3. **State Management Ready for Complexity**
+Using Observation framework positions the app for:
+- Multi-chord selection
+- Progression building
+- Recording and playback
+- User preferences
+
+### Code Quality Principles
+
+#### 1. **Clear Naming Conventions**
+- `isPlaying`, `isInScale`, `isInChord`: Boolean states are clearly named
+- `ScalePianoView` vs `PianoKeyboardView`: Purpose is evident from naming
+- Services, Models, Views organized in appropriate folders
+
+#### 2. **Computed Properties for Derived State**
+```swift
+var isPlayingProgression: Bool {
+    viewModel.currentlyPlayingProgressionId == progression.id
+}
+```
+
+#### 3. **SwiftUI Best Practices**
+- `@State` for local view state
+- `@Observable` for ViewModels
+- `.sheet()` for modal presentations
+- Proper view modifiers chaining
+
+### Performance Considerations
+
+#### 1. **Efficient Audio Generation**
+- Pre-calculate buffer sizes
+- Reuse player nodes
+- Apply fades to prevent clicks
+- Proper audio session configuration
+
+#### 2. **UI Optimization**
+- `LazyVGrid` for chord grid
+- Conditional rendering (piano on/off)
+- Proper `zIndex` for overlay elements
+- Animation only where meaningful
+
+### Testing & Debugging Approach
+
+#### 1. **Visual Testing First**
+- Build UI components independently
+- Test with different data sets
+- Verify layout at different sizes
+
+#### 2. **Audio Testing Strategy**
+- Test single notes before chords
+- Verify timing accuracy
+- Check for audio artifacts
+- Test interruption handling
+
+#### 3. **User Flow Testing**
+- Can users discover features?
+- Is the educational value clear?
+- Do animations enhance understanding?
+- Is the app responsive during audio playback?
+
+### Lessons Learned
+
+1. **Start Simple, Enhance Gradually**: The 4-chord prototype evolved into a full teaching tool
+2. **User Feedback is Gold**: Every reported issue led to a better solution
+3. **Modularity Pays Off**: Reusable components made feature addition smooth
+4. **Education Requires Clarity**: Visual hierarchy and clear labeling are crucial
+5. **Performance Matters**: Audio glitches break the experience immediately
+
+This architectural foundation supports the app's evolution from a simple chord player to a comprehensive music theory education platform.

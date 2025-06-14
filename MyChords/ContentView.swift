@@ -19,6 +19,14 @@ struct ContentView: View {
             }
             
             NavigationStack {
+                ScalesView()
+                    .navigationTitle("Scales")
+            }
+            .tabItem {
+                Label("Scales", systemImage: "music.quarternote.3")
+            }
+            
+            NavigationStack {
                 ProgressionsListView()
                     .navigationTitle("Progressions")
             }

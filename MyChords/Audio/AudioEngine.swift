@@ -37,12 +37,18 @@ final class AudioEngine {
         stopCurrentPlayback()
         isPlaying = true
         
+        var completedBuffers = 0
+        let totalBuffers = min(chord.notes.count, playerNodes.count)
+        
         // First, schedule all buffers
         for (index, note) in chord.notes.enumerated() where index < playerNodes.count {
             let buffer = createToneBuffer(frequency: note.frequency, duration: duration)
             playerNodes[index].scheduleBuffer(buffer) {
                 DispatchQueue.main.async {
-                    self.checkIfStillPlaying()
+                    completedBuffers += 1
+                    if completedBuffers >= totalBuffers {
+                        self.isPlaying = false
+                    }
                 }
             }
         }
@@ -58,10 +64,6 @@ final class AudioEngine {
         isPlaying = false
     }
     
-    private func checkIfStillPlaying() {
-        let anyPlaying = playerNodes.contains { $0.isPlaying }
-        isPlaying = anyPlaying
-    }
     
     private func createToneBuffer(frequency: Double, duration: TimeInterval) -> AVAudioPCMBuffer {
         let sampleRate = 44100.0
